@@ -78,6 +78,7 @@ get_control_parameters <- function(delta_AR_rho = 0.99,
        alpha_testing = alpha_testing,
        beta_testing = beta_testing,
        bin.d = bin.d,
-       I_seq = I_seq
+       I_seq = I_seq,
+       nbin = nbin
        )
 }
