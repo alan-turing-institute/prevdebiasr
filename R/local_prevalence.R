@@ -45,6 +45,8 @@ local_prevalence <- function(test_df,
     # NOTE: nu currently being fixed -- this may change in future
     #######################################
     test_df$nu <- boot::logit((test_df$Nt - test_df$nt) / test_df$M)
+    test_df$p1 <- boot::inv.logit(test_df$nu + test_df$delta)
+    test_df$p2 <- boot::inv.logit(test_df$nu)
 
     for (i in seq_along(control$I_seq)) {
       m <- control$I_seq[i]
