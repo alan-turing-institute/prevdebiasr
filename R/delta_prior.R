@@ -173,7 +173,7 @@ delta_regional_posterior <- function(test_df, I_quant, control, imperfect) {
   delta_post_sd <- sqrt(delta_post_moment2 - (delta_post_moment1)^2)
   
   # When no REACT/ONS, i.e. Nr = 0, output flat prior on delta
-  delta_post_mean[test_df$Nr == 0] <- 5
+  delta_post_mean[test_df$Nr == 0] <- 0
   delta_post_sd[test_df$Nr == 0] <- control$delta_inter_sd
   
   data.frame(delta_post_mean = delta_post_mean, delta_post_sd = delta_post_sd)
