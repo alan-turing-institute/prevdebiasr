@@ -167,7 +167,9 @@ prior_prevalence <- function (test_df, control) {
 #' Calculate log posterior of prevalence based on data from randomised testing
 #'
 #' @param test_df A data.frame with the following columns
-#'   \itemize{
+#'   \itemize{/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/04_main_cut.R
+/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/01_preprocess_data.R
+/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/00_download_data.R
 #'     \item{Nr: }{Total number of randomised tests}
 #'     \item{nr: }{Number of randomised tests returning positive}
 #'     \item{M: }{Population of local area}
@@ -181,7 +183,7 @@ randomised_testing_prevalence <- function(test_df, control, imperfect) {
   # Preallocate log likelihood
   n_bins  <- length(control$I_seq)
   n_time  <- nrow(test_df)
-  ll_randomised <- matrix(NA, n_time, n_bins)
+  ll_randomised <- matrix(-Inf, n_time, n_bins)
 
   # Calculate log likelihood
   for (i in seq_along(control$I_seq)) {
