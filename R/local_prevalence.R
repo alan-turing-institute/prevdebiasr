@@ -168,8 +168,6 @@ prior_prevalence <- function (test_df, control) {
 #'
 #' @param test_df A data.frame with the following columns
 #'   \itemize{/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/04_main_cut.R
-/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/01_preprocess_data.R
-/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/00_download_data.R
 #'     \item{Nr: }{Total number of randomised tests}
 #'     \item{nr: }{Number of randomised tests returning positive}
 #'     \item{M: }{Population of local area}
