@@ -104,28 +104,29 @@ local_prevalence <- function(test_df,
   ll_prev <- apply(ll_targeted_norm, c(2, 1),
                    function(x) matrixStats::logSumExp(x) - log(n_quant))
 
+  ll2_prev <- ll_prev
+  if (type == "Infectious") {
+    # PCR positive -> infectious
+    for (j in seq_len(nrow(test_df))) {
+      bin_probs <- matrix(NA, n_bins, n_bins)
+      for (i in seq_along(control$I_seq)) {
+        bin_probs[i,] <- log(diff(c(0, pmin(1, extraDistr::pbbinom(control$I_seq,
+                                                                   control$I_seq[i],
+                                                                   test_df$alpha[j],
+                                                                   test_df$beta[j])))))
+        bin_probs[i,] <- bin_probs[i,] + ll_prev[j,i]
+      }
+      ll2_prev[j,] <- apply(bin_probs, 2, matrixStats::logSumExp)
+    }
+  }
+
   I_prior <- prior_prevalence(test_df, control)
-  I_log_post <- ll_prev + log(I_prior)
+  I_log_post <- ll2_prev + log(I_prior)
   I_log_post_max <- apply(I_log_post, 1, max)
   I_post_unnorm <- exp(I_log_post - I_log_post_max)
   I_post_norm <- I_post_unnorm / rowSums(I_post_unnorm)
 
-  I2_post_norm <- I_post_norm
-  if (type == "Infectious") {
-    # PCR positive -> infectious
-    I2_post_norm[] <- 0
-    for (i in seq_along(control$I_seq)) {
-      for (j in seq_len(nrow(test_df))) {
-        bin_probs <- diff(c(0, pmin(cumsum(extraDistr::pbbinom(control$I_seq,
-                                                               control$I_seq[i],
-                                                               test_df$alpha[j],
-                                                               test_df$beta[j])), 1)))
-        I2_post_norm[j,] <- I2_post_norm[j,] + (I_post_norm[j,i] * bin_probs)
-      }
-    }
-  }
-
-  I_quant <- t(apply(I2_post_norm, 1, function(v) {
+  I_quant <- t(apply(I_post_norm, 1, function(v) {
     if(any(is.na(v))) {
       return( rep(NA, control$n_quant_approx_bias))
     } else {

@@ -8,7 +8,7 @@ randomised_testing_prevalence(test_df, control, imperfect)
 }
 \arguments{
 \item{test_df}{A data.frame with the following columns
-\itemize{
+\itemize{/well/holmes/users/rxa753/jbc-turing-rss-testdebiasing/scripts/04_main_cut.R
   \item{Nr: }{Total number of randomised tests}
   \item{nr: }{Number of randomised tests returning positive}
   \item{M: }{Population of local area}
