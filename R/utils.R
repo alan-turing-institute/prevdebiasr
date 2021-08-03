@@ -22,8 +22,38 @@ get_quantiles <- function(x, values, n_quantiles) {
   if (any(is.na(x))) {
     out <- rep(NA, n_quantiles)
   } else {
-    out <- return(values[findInterval(quant_approx, cumsum(v)) + 1])
+    out <- values[findInterval(quant_approx, cumsum(x)) + 1]
   }
 
   out
 }
+
+
+#' Gaussian moment-matching on logit scale
+#'
+#' @param x Vector of log-probabilities
+#' @param values Vector of proportions
+#'
+#' @export
+
+logit_mom <- function(x, values) {
+
+  if (any(values < 0))
+    stop("Proportions must be non-negative")
+
+  logit_values <- boot::logit(values)
+
+  norm_prob <- exp(x) / sum(exp(x))
+
+  # Place mass on zero on smallest non-zero value
+  norm_prob_dezeroed <- norm_prob
+  norm_prob_dezeroed[1] <- 0
+  norm_prob_dezeroed[2] <- norm_prob[1] + norm_prob[2]
+
+  mom_match1 <- sum(norm_prob_dezeroed * logit_values, na.rm = TRUE)
+  mom_match2 <- sum(norm_prob_dezeroed * (logit_values ^ 2), na.rm = TRUE)
+
+  data.frame(mean = mom_match1,
+             sd =  sqrt(mom_match2 - (mom_match1 ^ 2)))
+}
+

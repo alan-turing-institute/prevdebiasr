@@ -119,13 +119,15 @@ local_prevalence <- function(test_df,
       log_lik2[j,] <- apply(bin_probs, 2, matrixStats::logSumExp)
     }
   }
-  log_lik2 <- loglik2 - apply(log_lik2, 1, max)
+  log_lik2 <- log_lik2 - apply(log_lik2, 1, max)
 
   I_prior <- prior_prevalence(test_df, control)
   I_log_post <- log_lik2 + log(I_prior)
   I_log_post_max <- apply(I_log_post, 1, max)
   I_post_unnorm <- exp(I_log_post - I_log_post_max)
   I_post_norm <- I_post_unnorm / rowSums(I_post_unnorm)
+
+  colnames(I_log_post) <- colnames(I_post_norm) <- colnames(log_lik2) <- control$I_seq
 
   list(log_post = I_log_post,
        norm_post = I_post_norm,
@@ -178,6 +180,7 @@ randomised_testing_prevalence <- function(test_df, control, imperfect) {
   ll_randomised <- matrix(-Inf, n_time, n_bins)
 
   # Calculate log likelihood
+  n_quant <- control$n_quant_approx_bias
   for (i in seq_along(control$I_seq)) {
     I_curr <- control$I_seq[i]
 
@@ -196,7 +199,7 @@ randomised_testing_prevalence <- function(test_df, control, imperfect) {
           if (length(z_eval_points) > 0) {
 
             z_eval <- matrix(data = z_eval_points, nrow = length(z_eval_points),
-                             ncol = control$n_quant_approx_bias)
+                             ncol = n_quant)
             n_type2_eval <- outer(z_eval_points, control$quant_approx,
                                   function(X, Y) stats::qbinom(p = Y, size = X,
                                                                prob = control$beta_testing))
@@ -229,13 +232,7 @@ randomised_testing_prevalence <- function(test_df, control, imperfect) {
   I_post_unnorm <- exp(I_log_post - I_log_post_max)
   I_post_norm <- I_post_unnorm / rowSums(I_post_unnorm)
 
-  post_quant <- t(apply(I_post_norm, 1, function(v) {
-    if(any(is.na(v))) {
-      return( rep(NA, control$n_quant_approx_bias))
-    } else {
-      return(control$I_seq[findInterval(control$quant_approx, cumsum(v)) + 1])
-    }
-  }))
+  post_quant <- t(apply(I_post_norm, 1, get_quantiles, control$I_seq, n_quant))
 
   post_quant
 }

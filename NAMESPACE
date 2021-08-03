@@ -3,5 +3,6 @@
 export(get_control_parameters)
 export(get_quantiles)
 export(local_prevalence)
+export(logit_mom)
 export(specify_delta_prior)
 export(targeted_testing_loglik)
