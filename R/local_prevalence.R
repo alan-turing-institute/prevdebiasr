@@ -101,10 +101,10 @@ local_prevalence <- function(test_df,
 
   # Calculate posterior
   ll_targeted_norm <- apply(ll_targeted, c(1, 3, 4), normalise_logprob)
-  ll_prev <- apply(ll_targeted_norm, c(2, 1),
+  log_lik <- apply(ll_targeted_norm, c(2, 1),
                    function(x) matrixStats::logSumExp(x) - log(n_quant))
 
-  ll2_prev <- ll_prev
+  log_lik2 <- log_lik
   if (type == "Infectious") {
     # PCR positive -> infectious
     for (j in seq_len(nrow(test_df))) {
@@ -114,29 +114,22 @@ local_prevalence <- function(test_df,
                                                                    control$I_seq[i],
                                                                    test_df$alpha[j],
                                                                    test_df$beta[j])))))
-        bin_probs[i,] <- bin_probs[i,] + ll_prev[j,i]
+        bin_probs[i,] <- bin_probs[i,] + log_lik[j,i]
       }
-      ll2_prev[j,] <- apply(bin_probs, 2, matrixStats::logSumExp)
+      log_lik2[j,] <- apply(bin_probs, 2, matrixStats::logSumExp)
     }
   }
+  log_lik2 <- loglik2 - apply(log_lik2, 1, max)
 
   I_prior <- prior_prevalence(test_df, control)
-  I_log_post <- ll2_prev + log(I_prior)
+  I_log_post <- log_lik2 + log(I_prior)
   I_log_post_max <- apply(I_log_post, 1, max)
   I_post_unnorm <- exp(I_log_post - I_log_post_max)
   I_post_norm <- I_post_unnorm / rowSums(I_post_unnorm)
 
-  I_quant <- t(apply(I_post_norm, 1, function(v) {
-    if(any(is.na(v))) {
-      return( rep(NA, control$n_quant_approx_bias))
-    } else {
-      return(control$I_seq[findInterval(control$quant_approx, cumsum(v)) + 1])
-    }
-  }))
-
   list(log_post = I_log_post,
        norm_post = I_post_norm,
-       I_quant = I_quant)
+       log_lik = log_lik2)
 }
 
 
