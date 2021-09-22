@@ -1,7 +1,7 @@
 Package: prevdebiasr
 Type: Package
 Title: Estimate Local Prevalence Using Targeted And Randomised Testing Data
-Version: 0.1.0
+Version: 0.1.1
 Author: George Nicholson, Brieuc Lehmann
 Maintainer: Brieuc Lehmann <brieuc.lehmann@gmail.com>
 Description: A set of tools for estimating local prevalence by debiasing
